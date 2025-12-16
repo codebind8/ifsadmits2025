@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Top Admits 2025</title>
+
+<style>
+  * {
+    box-sizing: border-box;
+    font-family: Inter, Arial, sans-serif;
+  }
+
+  body {
+    margin: 0;
+    background: #fff;
+    color: #222;
+  }
+
+  .table-wrapper {
+    width: 100%;
+    max-height: 520px;
+    overflow-x: auto;
+    overflow-y: auto;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+  }
+
+  table {
+    width: 100%;
+    min-width: 1200px;
+    border-collapse: collapse;
+  }
+
+  thead {
+    position: sticky;
+    top: 0;
+    background: #f7f7f7;
+    z-index: 5;
+  }
+
+  th, td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  th {
+    font-weight: 600;
+  }
+
+  tbody tr:hover {
+    background: #fafafa;
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0;
+    background: #fff;
+  }
+
+  .pagination button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .pagination button.active {
+    background: #ff7a18;
+    color: #fff;
+    border-color: #ff7a18;
+  }
+
+  .pagination button:hover {
+    background: #f0f0f0;
+  }
+
+  @media (max-width: 768px) {
+    th, td {
+      font-size: 13px;
+      padding: 10px 12px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="table-wrapper">
+  <table>
+    <thead>
+      <tr>
+        <th>Sl. No.</th>
+        <th>Name of the Student</th>
+        <th>Graduated College</th>
+        <th>Admitted to University</th>
+        <th>Program</th>
+        <th>Country</th>
+        <th>QS Ranking</th>
+        <th>US News Ranking</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+</div>
+
+<div class="pagination" id="pagination"></div>
+
+<script>
+  const rowsPerPage = 15;
+  let currentPage = 1;
+  let data = [];
+
+  // Load CSV
+  fetch("admits-2025.csv")
+    .then(res => res.text())
+    .then(text => {
+      const rows = text.split("\n").slice(1); // remove header
+      data = rows
+        .map(r => r.split(","))
+        .filter(r => r.length >= 8)
+        .map((r, i) => ({
+          sl: r[0],
+          name: r[1],
+          college: r[2],
+          university: r[3],
+          program: r[4],
+          country: r[5],
+          qs: r[6],
+          us: r[7]
+        }));
+
+      renderTable();
+      renderPagination();
+    });
+
+  function renderTable() {
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+
+    data.slice(start, end).forEach(row => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${row.sl}</td>
+          <td>${row.name}</td>
+          <td>${row.college}</td>
+          <td>${row.university}</td>
+          <td>${row.program}</td>
+          <td>${row.country}</td>
+          <td>${row.qs}</td>
+          <td>${row.us}</td>
+        </tr>
+      `;
+    });
+  }
+
+  function renderPagination() {
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
+
+    const pages = Math.ceil(data.length / rowsPerPage);
+
+    for (let i = 1; i <= pages; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = i === currentPage ? "active" : "";
+      btn.onclick = () => {
+        currentPage = i;
+        renderTable();
+        renderPagination();
+      };
+      pagination.appendChild(btn);
+    }
+  }
+</script>
+
+</body>
+</html>
