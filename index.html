@@ -17,13 +17,14 @@
     color: #222;
   }
 
+  /* TABLE */
   .table-wrapper {
     width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
-}
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+  }
 
   table {
     width: 100%;
@@ -54,16 +55,26 @@
     background: #fafafa;
   }
 
-  /* Pagination */
+  /* PAGINATION */
   .pagination {
     display: flex;
-    justify-content: center;
     gap: 8px;
-    padding: 16px 0;
+    padding: 16px 12px;
     background: #fff;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .pagination::-webkit-scrollbar {
+    display: none;
   }
 
   .pagination button {
+    flex: 0 0 auto; /* 🔑 REQUIRED FOR MOBILE SCROLL */
     padding: 6px 12px;
     border-radius: 6px;
     border: 1px solid #ddd;
@@ -118,15 +129,18 @@
   let currentPage = 1;
   let data = [];
 
-  // Load CSV
   fetch("admits-2025.csv")
     .then(res => res.text())
     .then(text => {
-      const rows = text.split("\n").slice(1); // remove header
+      const rows = text
+        .trim()
+        .split("\n")
+        .slice(1);
+
       data = rows
         .map(r => r.split(","))
         .filter(r => r.length >= 8)
-        .map((r, i) => ({
+        .map(r => ({
           sl: r[0],
           name: r[1],
           college: r[2],
@@ -178,6 +192,7 @@
         currentPage = i;
         renderTable();
         renderPagination();
+        pagination.scrollLeft = btn.offsetLeft - 40; // mobile polish
       };
       pagination.appendChild(btn);
     }
